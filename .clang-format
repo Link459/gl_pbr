@@ -1,0 +1,46 @@
+BasedOnStyle:  Google
+Language: C
+ColumnLimit: 100
+IndentWidth: 4
+TabWidth: 4 
+UseTab: Never
+IndentCaseLabels: false
+BreakBeforeBraces: Custom
+AlignEscapedNewlinesLeft: false
+AllowShortFunctionsOnASingleLine: true
+AllowShortLambdasOnASingleLine: All
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 1
+PenaltyReturnTypeOnItsOwnLine: 200
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
+BinPackParameters: true
+BreakBeforeBinaryOperators: true
+BreakBeforeTernaryOperators: true
+ContinuationIndentWidth: 4
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: No
+AlwaysBreakTemplateDeclarations: No
+AlignEscapedNewlines: DontAlign
+BinPackArguments: true
+BraceWrapping:
+  AfterClass:      false
+  AfterControlStatement: false
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     false
+  BeforeElse:      false
+  IndentBraces:    false
+BreakBeforeBraces: Allman
+PointerAlignment: Right
+SortIncludes: true
+PPIndentWidth: 1
+NamespaceIndentation: All
+AlwaysBreakTemplateDeclarations: Yes

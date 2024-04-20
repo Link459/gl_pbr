@@ -1,0 +1,272 @@
+[
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/asset.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/asset.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/buffer.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/buffer.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/camera.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/camera.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/light.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/light.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/main.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/main.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/material.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/material.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/mesh.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/mesh.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/models.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/models.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/pipeline.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/pipeline.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/shader.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/shader.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/texture.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/texture.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/vertex_array.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/vertex_array.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/vertex.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/vertex.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "src/window.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/src/window.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  },
+  {
+    "arguments": [
+      "/run/current-system/sw/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I",
+      "ext/glad/include/",
+      "-I",
+      "ext/",
+      "-o",
+      "gl_pbr",
+      "ext/glad/src/glad.c"
+    ],
+    "directory": "/home/link459/projects/gl_pbr",
+    "file": "/home/link459/projects/gl_pbr/ext/glad/src/glad.c",
+    "output": "/home/link459/projects/gl_pbr/gl_pbr"
+  }
+]
