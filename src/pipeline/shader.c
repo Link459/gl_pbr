@@ -1,5 +1,5 @@
 #include "shader.h"
-#include "asset.h"
+#include "../asset.h"
 #include <stdio.h>
 #include <stdlib.h>
 

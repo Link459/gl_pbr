@@ -21,6 +21,17 @@ Camera *camera_create(const CameraCreateInfo *info) {
   glm_vec3_add(camera->position, camera->front, center);
   glm_lookat(camera->position, center, camera->up, camera->view);
 
+  /*WindowInfo window_info = {
+      .last_x = 400.0f,
+      .last_y = 300.0f,
+      .yaw = -90.0f,
+      .pitch = 0.0f,
+      .first_mouse = 1.0f,
+      .fov = 45.0f,
+      .camera = camera,
+  };
+
+  glfwSetWindowUserPointer(info->window->window, &window_info);*/
   return camera;
 }
 

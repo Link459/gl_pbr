@@ -1,7 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "pipeline.h"
+#include "pipeline/pipeline.h"
 #include <cglm/cglm.h>
 
 typedef struct {

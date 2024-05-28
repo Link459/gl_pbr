@@ -1,7 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "pipeline.h"
+#include "pipeline/pipeline.h"
+
 typedef enum {
   ROOT,
   OBJECT,
@@ -23,10 +24,13 @@ typedef struct {
 } Scene;
 
 Scene scene_create();
+
 int scene_add_node(Scene *scene, SceneNodeType type, void *data);
 void scene_add_child(Scene *scene, int index, SceneNodeType type, void *data);
+
 SceneNode *scene_get_node(Scene *scene, int index);
 void *scene_get_node_data(Scene *scene, int index);
+
 void scene_draw(Scene *scene);
 void scene_destroy(Scene *scene);
 

@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include "cglm/types.h"
-#include "pipeline.h"
+#include "pipeline/pipeline.h"
 typedef struct {
   vec3 position;
 

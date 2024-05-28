@@ -3,9 +3,10 @@ CFLAGS = -Wall -Werror
 LDFLAGS = -lglfw -lcglm -lGL -lm
 IFLAGS = -I ext/glad/include/ -I ext/
 CMD = clang src/*.c  ext/glad/src/glad.c $(CFLAGS) $(IFLAGS)  $(LDFLAGS) -o gl_pbr
+SRCS = $(shell find src -name '*.c')
 
 build: 
-	clang src/*.c ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O1 -o gl_pbr
+	clang $(SRCS) ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O1 -o gl_pbr
 release:
 	clang src/*.c ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O2 -o gl_pbr
 run: build

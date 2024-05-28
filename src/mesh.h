@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include "buffer.h"
-#include "pipeline.h"
+#include "pipeline/pipeline.h"
 #include "vertex.h"
 #include <cglm/struct.h>
 
@@ -16,12 +16,22 @@ typedef struct {
   mat4 transform;
 } Mesh;
 
+typedef struct {
+  Buffer vertex_buffer;
+  Buffer index_buffer;
+
+  uint32_t vertices_length;
+  uint32_t indices_length;
+  mat4 transform;
+} GpuMesh;
+
 Mesh *mesh_create(const Vertex *vertices, uint32_t vertex_count,
                   const uint32_t *indices, uint32_t index_count);
 
 Mesh *mesh_create_prealloced(Vertex *vertices, uint32_t vertex_count,
                              uint32_t *indices, uint32_t index_count);
 Mesh *mesh_create_empty(const uint32_t vertex_count, uint32_t index_count);
+
 void mesh_update();
 
 void mesh_draw(const Mesh *mesh, const Pipeline *pipeline);

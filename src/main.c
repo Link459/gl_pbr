@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 // needs this ordering to stop glad from complaining
-//#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -12,9 +12,9 @@
 #include "material.h"
 #include "mesh.h"
 #include "models.h"
-#include "pipeline.h"
+#include "pipeline/pipeline.h"
+#include "pipeline/shader.h"
 #include "scene.h"
-#include "shader.h"
 #include "texture.h"
 #include "vertex_array.h"
 #include "window.h"
@@ -49,6 +49,7 @@ int main() {
       .fov = 45.0f,
       .camera = camera,
   };
+
   glfwSetWindowUserPointer(window->window, &window_info);
 
   Shader vertex_shader = shader_from_file("shaders/vert.glsl", VERTEX_SHADER);
@@ -84,18 +85,6 @@ int main() {
       .specular = {1.0f, 1.0f, 1.0f},
   };
 
-  /*vec3 light_positions[] = {
-      {-10.0f, 10.0f, 10.0f},
-      {10.0f, 10.0f, 10.0f},
-      {-10.0f, -10.0f, 10.0f},
-      {10.0f, -10.0f, 10.0f},
-  };
-  vec3 light_colors[] = {{300.0f, 300.0f, 300.0f},
-                         {300.0f, 300.0f, 300.0f},
-                         {300.0f, 300.0f, 300.0f},
-                         {300.0f, 300.0f, 300.0f}};
-  */
-
   VertexArray vao = vertex_array_create();
 
   Mesh *mesh = model_cube_with_normals((vec3){1.0f, 0.5f, 0.31f});
@@ -109,6 +98,7 @@ int main() {
   glm_scale(light_mesh->transform, (vec3){0.2, 0.2, 0.2});
 
   while (!glfwWindowShouldClose(window->window)) {
+    printf("loop");
     process_input(window->window);
     process_camera_input(camera, window, &pipeline);
 
