@@ -1,5 +1,6 @@
 #include "camera.h"
 // needs this order
+#include "log.h"
 #include "window.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
@@ -14,7 +15,7 @@ Window *window_create() {
   GLFWwindow *glfw_window =
       glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
   if (glfw_window == NULL) {
-    fprintf(stderr, "Failed to create GLFW window");
+    LOG_ERR("Failed to create GLFW window");
     glfwTerminate();
     return NULL;
   }
@@ -22,7 +23,7 @@ Window *window_create() {
   glfwSetFramebufferSizeCallback(glfw_window, framebuffer_size_callback);
   glfwSetCursorPosCallback(glfw_window, mouse_callback);
   glfwSetScrollCallback(glfw_window, scroll_callback);
-    Window *window = malloc(sizeof(Window));
+  Window *window = malloc(sizeof(Window));
   window->window = glfw_window;
   window->width = 800;
   window->height = 600;

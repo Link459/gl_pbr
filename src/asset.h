@@ -3,7 +3,6 @@
 
 #include "mesh.h"
 #include "texture.h"
-#include <stdint.h>
 
 typedef struct {
   char *contents;

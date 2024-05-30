@@ -6,8 +6,8 @@
 typedef struct {
   vec3 pos;
   vec3 normal;
-  vec3 color;
-  // vec2 tex_coord;
+  //vec3 color;
+  vec2 tex_coord;
 } Vertex;
 
 void vertex_attributes();

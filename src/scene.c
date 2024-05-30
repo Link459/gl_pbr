@@ -1,6 +1,4 @@
 #include "scene.h"
-#include "material.h"
-#include "mesh.h"
 #include "object.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,25 +62,20 @@ void scene_node_add_child(SceneNode *node, int index, SceneNodeType type,
 }
 
 SceneNode *scene_node_get_child(SceneNode *node, int index) {
-  printf("searching node\n");
 
   if (node->index == index) {
-    printf("found node\n");
     return node;
   }
 
   for (int i = 0; i < node->children_lenght; i++) {
 
-    printf("searching children\n");
     SceneNode *found_node = scene_node_get_child(&node->children[i], index);
     if (found_node != NULL) {
 
-      printf("found node\n");
       return found_node;
     }
   }
 
-  printf("did not find node\n");
   return NULL;
 }
 
@@ -115,7 +108,6 @@ void scene_node_destroy(SceneNode *node) {
 }
 
 void scene_node_grow(SceneNode *node) {
-  printf("grow");
   if (node->children_capacity == 0) {
     node->children_capacity = 2;
   }

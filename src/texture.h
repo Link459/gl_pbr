@@ -19,6 +19,7 @@ typedef enum {
 } TextureType;
 
 typedef enum {
+  WRAPPING_NONE,
   WRAPPING_REPEAT = GL_REPEAT,
   WRAPPING_MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
   WRAPPING_CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
@@ -26,12 +27,13 @@ typedef enum {
 } TextureWrapping;
 
 typedef struct {
-  TextureWrapping *wrap_s;
-  TextureWrapping *wrap_t;
-  TextureWrapping *wrap_r;
+  TextureWrapping wrap_s;
+  TextureWrapping wrap_t;
+  TextureWrapping wrap_r;
 } TextureWrappingOptions;
 
 typedef enum {
+  FILTERING_NONE,
   FILTERING_LINEAR = GL_LINEAR,
   FILTERING_NEAREST = GL_NEAREST,
   FILTERING_LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
@@ -41,8 +43,8 @@ typedef enum {
 } TextureFiltering;
 
 typedef struct {
-  TextureFiltering *mag_filtering;
-  TextureFiltering *min_filtering;
+  TextureFiltering mag_filtering;
+  TextureFiltering min_filtering;
 } TextureFilteringOptions;
 
 typedef struct {
@@ -57,8 +59,6 @@ typedef struct {
 } Texture;
 
 Texture texture_create(const TextureCreateInfo *info);
-Texture texture_create_file(const TextureCreateInfo *info,
-                            const char *file_path);
 void texture_bind(const Texture *texture);
-void texture_destrox(const Texture *texture);
+void texture_destroy(const Texture *texture);
 #endif /* TEXTURE_H */

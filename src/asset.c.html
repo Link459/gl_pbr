@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>~/projects/gl_pbr/src/asset.c.html</title>
+<meta name="Generator" content="Vim/8.1">
+<meta name="plugin-version" content="vim9.0_v1">
+<meta name="syntax" content="none">
+<meta name="settings" content="number_lines,use_css,no_foldcolumn,expand_tabs,line_ids,prevent_copy=,use_input_for_pc=fallback">
+<meta name="colorscheme" content="tokyonight">
+<style>
+<!--
+pre { font-family: monospace; color: #c0caf5; background-color: #000000; }
+body { font-family: monospace; color: #c0caf5; background-color: #000000; }
+* { font-size: 1em; }
+.LineNr { color: #3b4261; }
+-->
+</style>
+
+<script>
+<!--
+
+/* function to open any folds containing a jumped-to line before jumping to it */
+function JumpToLine()
+{
+  var lineNum;
+  lineNum = window.location.hash;
+  lineNum = lineNum.substr(1); /* strip off '#' */
+
+  if (lineNum.indexOf('L') == -1) {
+    lineNum = 'L'+lineNum;
+  }
+  var lineElem = document.getElementById(lineNum);
+  /* Always jump to new location even if the line was hidden inside a fold, or
+   * we corrected the raw number to a line ID.
+   */
+  if (lineElem) {
+    lineElem.scrollIntoView(true);
+  }
+  return true;
+}
+if ('onhashchange' in window) {
+  window.onhashchange = JumpToLine;
+}
+
+-->
+</script>
+</head>
+<body onload='JumpToLine();'>
+<pre id='vimCodeElement'>
+<span id="L1" class="LineNr">  1 </span>#include &quot;asset.h&quot;
+<span id="L2" class="LineNr">  2 </span>#include &quot;log.h&quot;
+<span id="L3" class="LineNr">  3 </span>
+<span id="L4" class="LineNr">  4 </span>#define TINYOBJ_LOADER_C_IMPLEMENTATION
+<span id="L5" class="LineNr">  5 </span>#include &quot;tinyobj_loader.h&quot;
+<span id="L6" class="LineNr">  6 </span>#define STB_IMAGE_IMPLEMENTATION
+<span id="L7" class="LineNr">  7 </span>#include &lt;stb_image.h&gt;
+<span id="L8" class="LineNr">  8 </span>
+<span id="L9" class="LineNr">  9 </span>FileResult asset_load_file(const char *file_path, const char *access) {
+<span id="L10" class="LineNr"> 10 </span>  FILE *file = fopen(file_path, access);
+<span id="L11" class="LineNr"> 11 </span>  FileResult res = {};
+<span id="L12" class="LineNr"> 12 </span>  if (file == NULL) {
+<span id="L13" class="LineNr"> 13 </span>    fprintf(stderr, &quot;Failed to open file: %s&quot;, file_path);
+<span id="L14" class="LineNr"> 14 </span>    return res;
+<span id="L15" class="LineNr"> 15 </span>  }
+<span id="L16" class="LineNr"> 16 </span>
+<span id="L17" class="LineNr"> 17 </span>  char *source = NULL;
+<span id="L18" class="LineNr"> 18 </span>  uint32_t lenght = 0;
+<span id="L19" class="LineNr"> 19 </span>  /* Go to the end of the file. */
+<span id="L20" class="LineNr"> 20 </span>  if (fseek(file, 0L, SEEK_END) == 0) {
+<span id="L21" class="LineNr"> 21 </span>    /* Get the size of the file. */
+<span id="L22" class="LineNr"> 22 </span>    long bufsize = ftell(file);
+<span id="L23" class="LineNr"> 23 </span>    if (bufsize == -1) { /* Error */
+<span id="L24" class="LineNr"> 24 </span>      return res;
+<span id="L25" class="LineNr"> 25 </span>    }
+<span id="L26" class="LineNr"> 26 </span>
+<span id="L27" class="LineNr"> 27 </span>    /* Allocate our buffer to that size. */
+<span id="L28" class="LineNr"> 28 </span>    source = malloc(sizeof(char) * (bufsize + 1));
+<span id="L29" class="LineNr"> 29 </span>
+<span id="L30" class="LineNr"> 30 </span>    /* Go back to the start of the file. */
+<span id="L31" class="LineNr"> 31 </span>    if (fseek(file, 0L, SEEK_SET) != 0) { /* Error */
+<span id="L32" class="LineNr"> 32 </span>      exit(1);
+<span id="L33" class="LineNr"> 33 </span>    }
+<span id="L34" class="LineNr"> 34 </span>
+<span id="L35" class="LineNr"> 35 </span>    /* Read the entire file into memory. */
+<span id="L36" class="LineNr"> 36 </span>    size_t newLen = fread(source, sizeof(char), bufsize, file);
+<span id="L37" class="LineNr"> 37 </span>    if (ferror(file) != 0) {
+<span id="L38" class="LineNr"> 38 </span>      fprintf(stderr, &quot;Error reading file: %s&quot;, file_path);
+<span id="L39" class="LineNr"> 39 </span>    } else {
+<span id="L40" class="LineNr"> 40 </span>      source[newLen++] = '\0'; /* Just to be safe. */
+<span id="L41" class="LineNr"> 41 </span>    }
+<span id="L42" class="LineNr"> 42 </span>    lenght = bufsize;
+<span id="L43" class="LineNr"> 43 </span>  }
+<span id="L44" class="LineNr"> 44 </span>  fclose(file);
+<span id="L45" class="LineNr"> 45 </span>  res.contents = source;
+<span id="L46" class="LineNr"> 46 </span>  res.lenght = lenght;
+<span id="L47" class="LineNr"> 47 </span>  return res;
+<span id="L48" class="LineNr"> 48 </span>}
+<span id="L49" class="LineNr"> 49 </span>
+<span id="L50" class="LineNr"> 50 </span>static void get_file_data(void *ctx, const char *filename, const int is_mtl,
+<span id="L51" class="LineNr"> 51 </span>                          const char *obj_filename, char **data, size_t *len) {
+<span id="L52" class="LineNr"> 52 </span>  // NOTE: If you allocate the buffer with malloc(),
+<span id="L53" class="LineNr"> 53 </span>  // You can define your own memory management struct and pass it through `ctx`
+<span id="L54" class="LineNr"> 54 </span>  // to store the pointer and free memories at clean up stage(when you quit an
+<span id="L55" class="LineNr"> 55 </span>  // app)
+<span id="L56" class="LineNr"> 56 </span>  // This example uses mmap(), so no free() required.
+<span id="L57" class="LineNr"> 57 </span>  (void)ctx;
+<span id="L58" class="LineNr"> 58 </span>
+<span id="L59" class="LineNr"> 59 </span>  if (!filename) {
+<span id="L60" class="LineNr"> 60 </span>    fprintf(stderr, &quot;null filename\n&quot;);
+<span id="L61" class="LineNr"> 61 </span>    (*data) = NULL;
+<span id="L62" class="LineNr"> 62 </span>    (*len) = 0;
+<span id="L63" class="LineNr"> 63 </span>    return;
+<span id="L64" class="LineNr"> 64 </span>  }
+<span id="L65" class="LineNr"> 65 </span>
+<span id="L66" class="LineNr"> 66 </span>  FileResult file = asset_load_file(filename, &quot;rb&quot;);
+<span id="L67" class="LineNr"> 67 </span>  (*data) = file.contents;
+<span id="L68" class="LineNr"> 68 </span>  (*len) = file.lenght;
+<span id="L69" class="LineNr"> 69 </span>}
+<span id="L70" class="LineNr"> 70 </span>
+<span id="L71" class="LineNr"> 71 </span>Mesh *asset_load_mesh(const char *file_path) {
+<span id="L72" class="LineNr"> 72 </span>  tinyobj_attrib_t attrib;
+<span id="L73" class="LineNr"> 73 </span>  tinyobj_shape_t *shapes = NULL;
+<span id="L74" class="LineNr"> 74 </span>  size_t num_shapes;
+<span id="L75" class="LineNr"> 75 </span>  tinyobj_material_t *materials = NULL;
+<span id="L76" class="LineNr"> 76 </span>  size_t num_materials;
+<span id="L77" class="LineNr"> 77 </span>
+<span id="L78" class="LineNr"> 78 </span>  unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
+<span id="L79" class="LineNr"> 79 </span>  char *content = NULL;
+<span id="L80" class="LineNr"> 80 </span>  int ret = tinyobj_parse_obj(&amp;attrib, &amp;shapes, &amp;num_shapes, &amp;materials,
+<span id="L81" class="LineNr"> 81 </span>                              &amp;num_materials, file_path, get_file_data, content,
+<span id="L82" class="LineNr"> 82 </span>                              flags);
+<span id="L83" class="LineNr"> 83 </span>  if (ret != TINYOBJ_SUCCESS) {
+<span id="L84" class="LineNr"> 84 </span>    PANIC(&quot;failed to load asset&quot;);
+<span id="L85" class="LineNr"> 85 </span>  }
+<span id="L86" class="LineNr"> 86 </span>
+<span id="L87" class="LineNr"> 87 </span>  Vertex *vertices = malloc(sizeof(Vertex) * attrib.num_vertices);
+<span id="L88" class="LineNr"> 88 </span>  for (int i = 0; i &lt; attrib.num_vertices; i++) {
+<span id="L89" class="LineNr"> 89 </span>    Vertex *vertex = &amp;vertices[i];
+<span id="L90" class="LineNr"> 90 </span>    tinyobj_vertex_index_t *v = &amp;attrib.faces[i];
+<span id="L91" class="LineNr"> 91 </span>    vertex-&gt;pos[0] = attrib.vertices[v-&gt;v_idx + 0];
+<span id="L92" class="LineNr"> 92 </span>    vertex-&gt;pos[1] = attrib.vertices[v-&gt;v_idx + 1];
+<span id="L93" class="LineNr"> 93 </span>    vertex-&gt;pos[2] = attrib.vertices[v-&gt;v_idx + 2];
+<span id="L94" class="LineNr"> 94 </span>    glm_vec3_copy((vec3){0.0f, 0.0f, 0.0f}, vertex-&gt;color);
+<span id="L95" class="LineNr"> 95 </span>  }
+<span id="L96" class="LineNr"> 96 </span>
+<span id="L97" class="LineNr"> 97 </span>  for (int i = 0; i &lt; attrib.num_normals; i++) {
+<span id="L98" class="LineNr"> 98 </span>    Vertex *vertex = &amp;vertices[i];
+<span id="L99" class="LineNr"> 99 </span>    tinyobj_vertex_index_t *v = &amp;attrib.faces[i];
+<span id="L100" class="LineNr">100 </span>
+<span id="L101" class="LineNr">101 </span>    vertex-&gt;normal[0] = attrib.normals[v-&gt;vn_idx + 0];
+<span id="L102" class="LineNr">102 </span>    vertex-&gt;normal[1] = attrib.normals[v-&gt;vn_idx + 1];
+<span id="L103" class="LineNr">103 </span>    vertex-&gt;normal[2] = attrib.normals[v-&gt;vn_idx + 2];
+<span id="L104" class="LineNr">104 </span>  }
+<span id="L105" class="LineNr">105 </span>
+<span id="L106" class="LineNr">106 </span>  /*Mesh *mesh = mesh_create_prealloced(
+<span id="L107" class="LineNr">107 </span>      attrib.num_vertices / *attrib.face_num_verts, attrib.num_vertices);*/
+<span id="L108" class="LineNr">108 </span>
+<span id="L109" class="LineNr">109 </span>  Mesh *mesh = mesh_create_prealloced(vertices, attrib.num_vertices, NULL, 0);
+<span id="L110" class="LineNr">110 </span>  tinyobj_attrib_free(&amp;attrib);
+<span id="L111" class="LineNr">111 </span>  tinyobj_materials_free(materials, num_materials);
+<span id="L112" class="LineNr">112 </span>  tinyobj_shapes_free(shapes, num_shapes);
+<span id="L113" class="LineNr">113 </span>
+<span id="L114" class="LineNr">114 </span>  if (content != NULL) {
+<span id="L115" class="LineNr">115 </span>    free(content);
+<span id="L116" class="LineNr">116 </span>  }
+<span id="L117" class="LineNr">117 </span>
+<span id="L118" class="LineNr">118 </span>  return mesh;
+<span id="L119" class="LineNr">119 </span>}
+<span id="L120" class="LineNr">120 </span>
+<span id="L121" class="LineNr">121 </span>Texture asset_load_texture(const TextureCreateInfo *info,
+<span id="L122" class="LineNr">122 </span>                           const char *file_path) {
+<span id="L123" class="LineNr">123 </span>  Texture texture = texture_create(info);
+<span id="L124" class="LineNr">124 </span>  int width, height, nr_channels;
+<span id="L125" class="LineNr">125 </span>  unsigned char *data = stbi_load(file_path, &amp;width, &amp;height, &amp;nr_channels, 0);
+<span id="L126" class="LineNr">126 </span>  if (data) {
+<span id="L127" class="LineNr">127 </span>    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+<span id="L128" class="LineNr">128 </span>                 GL_UNSIGNED_BYTE, data);
+<span id="L129" class="LineNr">129 </span>    glGenerateMipmap(GL_TEXTURE_2D);
+<span id="L130" class="LineNr">130 </span>  } else {
+<span id="L131" class="LineNr">131 </span>    fprintf(stderr, &quot;failed to load image: %s\n&quot;, file_path);
+<span id="L132" class="LineNr">132 </span>  }
+<span id="L133" class="LineNr">133 </span>  stbi_image_free(data);
+<span id="L134" class="LineNr">134 </span>
+<span id="L135" class="LineNr">135 </span>  return texture;
+<span id="L136" class="LineNr">136 </span>}
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->

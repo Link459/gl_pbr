@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "../asset.h"
+#include "../log.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,10 +10,11 @@ Shader shader_create(const char *code, ShaderType shader_type) {
   glCompileShader(shader_id);
   // check for shader compile errors
   int success;
-  char infoLog[512];
+  char info_log[512];
   glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
   if (!success) {
-    glGetShaderInfoLog(shader_id, 512, NULL, infoLog);
+    glGetShaderInfoLog(shader_id, 512, NULL, info_log);
+    PANIC("%s", info_log);
   }
 
   Shader shader;

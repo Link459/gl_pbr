@@ -1,3 +1,6 @@
+#ifndef TINYOBJ_LOADER_H
+#define TINYOBJ_LOADER_H
+
 /*
    The MIT License (MIT)
 
@@ -1737,3 +1740,5 @@ void tinyobj_materials_free(tinyobj_material_t *materials,
 #endif /* TINYOBJ_LOADER_C_IMPLEMENTATION */
 
 #endif /* TINOBJ_LOADER_C_H_ */
+
+#endif /* TINYOBJ_LOADER_H */

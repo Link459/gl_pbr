@@ -8,13 +8,13 @@
 typedef struct {
   Shader *shaders;
   size_t length;
+  // wheter to delete the shaders after creation or if to keep them (so you can
+  // reuse them)
+  bool delete;
 } PipelineCreateInfo;
 
-// maybe change to program pipelines for more flexibility
 typedef struct {
   uint32_t pipeline_id;
-  Shader *shaders;
-  size_t shader_length;
 } Pipeline;
 
 Pipeline pipeline_create(const PipelineCreateInfo *);
@@ -32,6 +32,6 @@ void pipeline_set_mat3(const Pipeline *pipeline, const char *v,
                        const mat3 *mat);
 void pipeline_set_mat4(const Pipeline *pipeline, const char *v,
                        const mat4 *mat);
-void pipeline_destroy(Pipeline *pipeline);
+void pipeline_destroy(const Pipeline *pipeline);
 
 #endif /* PIPELINE_H */

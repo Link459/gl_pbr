@@ -21,6 +21,17 @@ Camera *camera_create(const CameraCreateInfo *info) {
   glm_vec3_add(camera->position, camera->front, center);
   glm_lookat(camera->position, center, camera->up, camera->view);
 
+  WindowInfo window_info = {
+      .last_x = 400.0f,
+      .last_y = 300.0f,
+      .yaw = -90.0f,
+      .pitch = 0.0f,
+      .first_mouse = 1.0f,
+      .fov = 45.0f,
+      .camera = camera,
+  };
+
+  glfwSetWindowUserPointer(info->window->window, &window_info);
   /*WindowInfo window_info = {
       .last_x = 400.0f,
       .last_y = 300.0f,
@@ -38,6 +49,7 @@ Camera *camera_create(const CameraCreateInfo *info) {
 void camera_bind(const Camera *camera, const Pipeline *pipeline) {
   pipeline_set_mat4(pipeline, "projection", &camera->projection);
   pipeline_set_mat4(pipeline, "view", &camera->view);
+  pipeline_set_vec3(pipeline, "camera_pos", &camera->position);
 }
 
 void process_camera_input(Camera *camera, const Window *window,

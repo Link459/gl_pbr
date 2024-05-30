@@ -1,4 +1,5 @@
 #include "pipeline.h"
+#include "../log.h"
 #include <glad/glad.h>
 
 Pipeline pipeline_create(const PipelineCreateInfo *info) {
@@ -6,17 +7,25 @@ Pipeline pipeline_create(const PipelineCreateInfo *info) {
   for (int i = 0; i < info->length; i++) {
     glAttachShader(shader_program, info->shaders[i].shader_id);
   }
+  // maybe use pipeline programs to avoid the rigidness
+  // glProgramParameter(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
   glLinkProgram(shader_program);
   int success = 0;
   char info_log[512];
   glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(shader_program, 512, NULL, info_log);
+    PANIC("%s", info_log);
   }
+
+  if (info->delete) {
+    for (int i = 0; i < info->length; i++) {
+      shader_destroy(info->shaders[i]);
+    }
+  }
+
   Pipeline pipeline = {
       .pipeline_id = shader_program,
-      .shaders = info->shaders,
-      .shader_length = info->length,
   };
   return pipeline;
 }
@@ -63,10 +72,6 @@ void pipeline_set_mat4(const Pipeline *pipeline, const char *v,
   glUniformMatrix4fv(location, 1, false, **mat);
 }
 
-void pipeline_destroy(Pipeline *pipeline) {
-
-  for (int i = 0; i < pipeline->shader_length; i++) {
-    shader_destroy(pipeline->shaders[i]);
-  }
+void pipeline_destroy(const Pipeline *pipeline) {
   glDeleteProgram(pipeline->pipeline_id);
 }

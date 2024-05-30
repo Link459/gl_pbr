@@ -3,29 +3,6 @@
 
 #include <string.h>
 
-/*#define TINYOBJ_LOADER_C_IMPLEMENTATION
-#include <tinyobj_loader.h>*/
-
-/*static void get_file_data(void *ctx, const char *filename, const int is_mtl,
-                          const char *obj_filename, char **data, size_t *len) {
-
-  if (!filename) {
-    fprintf(stderr, "null filename\n");
-    (*data) = NULL;
-    (*len) = 0;
-    return;
-  }
-
-  FileResult res = file_load(obj_filename, "r");
-  *data = res.contents;
-  *len = res.lenght;
-
-  char *content = (char *)ctx;
-  content = res.contents;
-  // to shut up clang/gcc
-  (void)content;
-}*/
-
 Mesh *mesh_create(const Vertex *vertices, uint32_t vertex_count,
                   const uint32_t *indices, uint32_t index_count) {
   Mesh *mesh = malloc(sizeof(Mesh));
