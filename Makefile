@@ -8,12 +8,15 @@ SRCS = $(shell find src -name '*.c')
 build: 
 	clang $(SRCS) ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O1 -o gl_pbr
 release:
-	clang src/*.c ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O2 -o gl_pbr
+	clang $(SRCS) ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O2 -o gl_pbr
 run: build
 	./gl_pbr
+debug:
+	clang  $(SRCS) ext/glad/src/glad.c  $(CFLAGS) $(IFLAGS) $(LDFLAGS) -O2 -o gl_pbr -ggdb
+	gdb gl_pbr
 compile_commands: 	
 	bear -- $(CMD)
 clean:
 	rm gl_pbr
 
-.PHONY: build run compile_commands clean
+.PHONY: build run compile_commands clean debug

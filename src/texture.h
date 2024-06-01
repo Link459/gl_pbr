@@ -59,6 +59,8 @@ typedef struct {
 } Texture;
 
 Texture texture_create(const TextureCreateInfo *info);
+TextureCreateInfo texture_info_default(); 
 void texture_bind(const Texture *texture);
 void texture_destroy(const Texture *texture);
+
 #endif /* TEXTURE_H */

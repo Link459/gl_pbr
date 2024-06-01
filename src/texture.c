@@ -30,10 +30,27 @@ Texture texture_create(const TextureCreateInfo *info) {
   return texture;
 }
 
+TextureCreateInfo texture_info_default() {
+  TextureCreateInfo info = {
+      .type = TEXTURE_2D,
+      .wrapping = {
+          .wrap_s= WRAPPING_CLAMP_TO_EDGE ,
+          .wrap_t = WRAPPING_CLAMP_TO_EDGE,
+          .wrap_r= WRAPPING_CLAMP_TO_EDGE,
+      },
+      .filtering =
+          {
+              .min_filtering = FILTERING_LINEAR_MIPMAP_LINEAR,
+              .mag_filtering = FILTERING_LINEAR,
+          },
+  };
+  return info;
+}
+
 void texture_bind(const Texture *texture) {
   glBindTexture(texture->type, texture->texture_id);
 }
 
-void texture_destrox(const Texture *texture) {
+void texture_destroy(const Texture *texture) {
   glDeleteTextures(1, &texture->texture_id);
 }

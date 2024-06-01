@@ -8,24 +8,22 @@ in vec3 normal;
   
 uniform vec3 camera_pos;
 
-struct Material {
-	sampler2D albedo;
-    sampler2D normal;
-    sampler2D metallic;
-    sampler2D roughness;
-    sampler2D ao;
-};
-
-uniform Material material;
+//struct Material {
+uniform sampler2D albedo_map;
+uniform sampler2D normal_map;
+uniform sampler2D metallic_map;
+uniform sampler2D roughness_map;
+uniform sampler2D ao_map; //}; //uniform Material material; 
 
 uniform vec3 light_position;
+
 uniform vec3 light_color;
 
 const float PI = 3.14159265359;
 
-vec3 getNormalFromMap()
+vec3 getNormalFromNormalMap()
 {
-    vec3 tangentNormal = texture(material.normal, TexCoords).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(normal_map, tex_coords).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(world_pos);
     vec3 Q2  = dFdy(world_pos);
@@ -82,20 +80,18 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {		
+    vec3 albedo     = pow(texture(albedo_map, tex_coords).rgb, vec3(2.2));
+    float metallic  = texture(metallic_map, tex_coords).r;
+    float roughness = texture(roughness_map, tex_coords).r;
+    float ao        = texture(ao_map, tex_coords).r;
 
-    vec3 albedo     = pow(texture(albedoMap, tex_coords).rgb, 2.2);
-    vec3 normal     = getNormalFromNormalMap();
-    float metallic  = texture(material.metallic, tex_coords).r;
-    float roughness = texture(material.roughness, tex_coords).r;
-    float ao        = texture(material.ao, tex_coords).r;
-
-    vec3 N = normalize(normal);
+    vec3 N = getNormalFromNormalMap();
     vec3 V = normalize(camera_pos - world_pos);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
     vec3 F0 = vec3(0.04); 
-    F0 = mix(F0, material.albedo, material.metallic);
+    F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
@@ -107,35 +103,35 @@ void main()
     vec3 radiance = light_color* attenuation;
 
     // Cook-Torrance BRDF
-    float NDF = DistributionGGX(N, H, material.roughness);   
-    float G   = GeometrySmith(N, V, L, material.roughness);      
+    float NDF = DistributionGGX(N, H, roughness);   
+    float G   = GeometrySmith(N, V, L, roughness);      
     vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
            
     vec3 numerator    = NDF * G * F; 
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
+    vec3 specular = numerator / denominator;
         
-        // kS is equal to Fresnel
-        vec3 kS = F;
-        // for energy conservation, the diffuse and specular light can't
-        // be above 1.0 (unless the surface emits light); to preserve this
-        // relationship the diffuse component (kD) should equal 1.0 - kS.
-        vec3 kD = vec3(1.0) - kS;
-        // multiply kD by the inverse metalness such that only non-metals 
-        // have diffuse lighting, or a linear blend if partly metal (pure metals
-        // have no diffuse light).
-        kD *= 1.0 - material.metallic;	  
+    // kS is equal to Fresnel
+    vec3 kS = F;
+    // for energy conservation, the diffuse and specular light can't
+    // be above 1.0 (unless the surface emits light); to preserve this
+    // relationship the diffuse component (kD) should equal 1.0 - kS.
+    vec3 kD = vec3(1.0) - kS;
+    // multiply kD by the inverse metalness such that only non-metals 
+    // have diffuse lighting, or a linear blend if partly metal (pure metals
+    // have no diffuse light).
+    kD *= 1.0 - metallic;	  
 
-        // scale light by NdotL
-        float NdotL = max(dot(N, L), 0.0);        
+    // scale light by NdotL
+	float NdotL = max(dot(N, L), 0.0);        
 
-        // add to outgoing radiance Lo
-        Lo += (kD * material.albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    // add to outgoing radiance Lo
+	Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
        
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * material.albedo * material.ao;
+    vec3 ambient = vec3(0.03) * albedo * ao;
 
     vec3 color = ambient + Lo;
 
@@ -144,5 +140,7 @@ void main()
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
+
     FragColor = vec4(color, 1.0);
+	//FragColor = vec4(tex_coords,0.0,1.0);
 }

@@ -34,6 +34,10 @@ void pipeline_bind(const Pipeline *pipeline) {
   glUseProgram(pipeline->pipeline_id);
 }
 
+void pipeline_set_int(const Pipeline *pipeline, const char *v, const int i) {
+  int location = glGetUniformLocation(pipeline->pipeline_id, v);
+  glUniform1i(location, i);
+}
 void pipeline_set_float(const Pipeline *pipeline, const char *v,
                         const float f) {
   int location = glGetUniformLocation(pipeline->pipeline_id, v);

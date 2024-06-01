@@ -2,7 +2,7 @@
 
 PbrPipeline pbr_pipeline_create() {
   Shader vertex = shader_from_file("shaders/pbr/vert.glsl", VERTEX_SHADER);
-  Shader fragment = shader_from_file("shaders/pbr/frag.glsl", FRAGMENT_SHADER);
+  Shader fragment = shader_from_file("shaders/pbr/frag_tex.glsl", FRAGMENT_SHADER);
 
   Shader shaders[] = {vertex, fragment};
   PipelineCreateInfo info = {
@@ -14,6 +14,15 @@ PbrPipeline pbr_pipeline_create() {
   PbrPipeline pipeline = {
       .pipeline = pipeline_create(&info),
   };
+
+
+  pbr_pipeline_bind(&pipeline);
+  pipeline_set_int(&pipeline.pipeline, "albedo_map", 0);
+  pipeline_set_int(&pipeline.pipeline, "normal_map", 1);
+  pipeline_set_int(&pipeline.pipeline, "metallic_map", 2);
+  pipeline_set_int(&pipeline.pipeline, "roughness_map", 3);
+  pipeline_set_int(&pipeline.pipeline, "ao_map", 4);
+
   return pipeline;
 }
 

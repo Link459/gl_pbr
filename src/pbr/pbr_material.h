@@ -6,23 +6,20 @@
 #include "pbr_pipeline.h"
 
 typedef struct {
-  vec3 albedo;
-  float metallic;
-  float roughness;
-  float ao;
-} PbrMaterial;
-
-typedef struct {
   Texture albedo;
+  Texture normal;
   Texture metallic;
   Texture roughness;
   Texture ao;
-} PbrTexMaterial;
+  // TODO: maybe implement a reflectiveness value for the fresnel-schlick approximation
+} PbrMaterial;
 
-void pbr_material_bind(const PbrMaterial *material,
-                       const PbrPipeline *pipeline);
+void pbr_material_bind(const PbrPipeline *pipeline,
+                       const PbrMaterial *material);
+
+void pbr_material_destroy(const PbrMaterial *material);
 
 /// creates a repeating 1x1 texture based on a value
 /// useful when you need a consistent pbr map or don't wan't to make one
-Texture pbr_material_texture(float value);
+Texture pbr_material_texture(vec3 value);
 #endif /* PBR_MATERIAL_H */

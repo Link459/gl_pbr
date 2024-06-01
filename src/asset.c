@@ -127,14 +127,18 @@ Mesh *asset_load_mesh(const char *file_path) {
     // Texture Coordinate
     if (idx.vt_idx >= 0) {
       vertex->tex_coord[0] = attrib.texcoords[2 * idx.vt_idx + 0];
-      vertex->tex_coord[1] = attrib.texcoords[2 * idx.vt_idx + 1];
+      vertex->tex_coord[1] = 1 - attrib.texcoords[2 * idx.vt_idx + 1];
     } else {
+      LOG_ERR("no texcoord");
       vertex->tex_coord[0] = 0.0f;
       vertex->tex_coord[1] = 0.0f;
     }
   }
 
   Mesh *mesh = mesh_create_prealloced(vertices, vertex_count, NULL, 0);
+
+  // TODO: parse the material data
+
   tinyobj_attrib_free(&attrib);
   tinyobj_materials_free(materials, num_materials);
   tinyobj_shapes_free(shapes, num_shapes);
@@ -172,6 +176,31 @@ Texture asset_load_texture(const TextureCreateInfo *info,
     LOG_ERR("failed to load image: %s\n", file_path);
   }
   stbi_image_free(data);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
+  return texture;
+}
+
+Texture asset_load_hdr(const char *file_path) {
+  stbi_set_flip_vertically_on_load(true);
+  TextureCreateInfo info = texture_info_default();
+  info.filtering.mag_filtering = FILTERING_LINEAR;
+  info.filtering.min_filtering = FILTERING_LINEAR;
+  info.wrapping.wrap_s = WRAPPING_CLAMP_TO_EDGE;
+  info.wrapping.wrap_t = WRAPPING_CLAMP_TO_EDGE;
+
+  Texture texture = texture_create(&info);
+  int width, height, nr_channels;
+  float *data = stbi_loadf(file_path, &width, &height, &nr_channels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB,
+                 GL_FLOAT, data);
+  } else {
+    LOG_ERR("failed to load image: %s\n", file_path);
+  }
+  stbi_image_free(data);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  stbi_set_flip_vertically_on_load(false);
   return texture;
 }

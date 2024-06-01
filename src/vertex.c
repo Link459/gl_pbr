@@ -12,9 +12,6 @@ void vertex_attributes() {
 
   vertex_array_set_attribute(2, 2, GL_FLOAT, 8 * sizeof(float),
                              (void *)(6 * sizeof(float)));
-  // texture coord attribute
-  //  vertex_array_set_attribute(2, 2, GL_FLOAT, 8 * sizeof(float),
-  //                            (void *)(6 * sizeof(float)));
 }
 
 void vertex_from_positions(vec3 *src, Vertex *dst, uint32_t len, vec3 color) {

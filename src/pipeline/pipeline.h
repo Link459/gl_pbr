@@ -19,6 +19,7 @@ typedef struct {
 
 Pipeline pipeline_create(const PipelineCreateInfo *);
 void pipeline_bind(const Pipeline *pipeline);
+void pipeline_set_int(const Pipeline *pipeline, const char *v, const int i);
 void pipeline_set_float(const Pipeline *pipeline, const char *v, const float f);
 void pipeline_set_vec2(const Pipeline *pipeline, const char *v,
                        const vec2 *vec);

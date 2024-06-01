@@ -22,6 +22,8 @@ int main() {
   }
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_MULTISAMPLE);
+
   int width, height;
   glfwGetWindowSize(window->window, &width, &height);
   CameraCreateInfo camera_info = {
@@ -49,19 +51,26 @@ int main() {
 
   PbrPipeline pipeline = pbr_pipeline_create();
 
-  PbrMaterial material = {
-      .albedo = {0.5f, 0.0f, 0.0f},
-      .roughness = 0.5,
-      .metallic = 0.3,
-      .ao = 0.07f,
-  };
+  PbrMaterial material = {};
+  TextureCreateInfo info = texture_info_default();
+
+  material.albedo = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
+
+  material.normal = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
+
+  material.metallic = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
+  material.roughness = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
 
   vec3 light_position = {0.0f, 0.0f, 10.0f};
   vec3 light_color = {150.0f, 150.0f, 150.0f};
 
   VertexArray vao = vertex_array_create();
 
-  Mesh *mesh = asset_load_mesh("assets/teapot.obj");
+  Mesh *mesh = asset_load_mesh("assets/Cerberus/cerberus.obj");
   vertex_attributes();
 
   while (!glfwWindowShouldClose(window->window)) {
@@ -76,10 +85,14 @@ int main() {
 
     pipeline_set_vec3(&pipeline.pipeline, "light_position", &light_position);
     pipeline_set_vec3(&pipeline.pipeline, "light_color", &light_color);
-    pbr_material_bind(&material, &pipeline);
+
+    pbr_material_bind(&pipeline, &material);
 
     vertex_array_bind(&vao);
     mesh_draw(mesh, &pipeline.pipeline);
+
+    pipeline_bind(&pipeline.pipeline);
+    vertex_array_bind(&vao);
 
     float axis[3] = {0.0, 1.0, 0.0};
     glm_rotate(mesh->transform, 0.001, axis);
@@ -90,6 +103,7 @@ int main() {
 
   vertex_array_destroy(&vao);
   mesh_destroy(mesh);
+  pbr_material_destroy(&material);
   pipeline_destroy(&pipeline.pipeline);
   free(camera);
   window_free(window);
