@@ -11,7 +11,7 @@ Window *window_create() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_SAMPLES, 4);
 
   GLFWwindow *glfw_window =
       glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
@@ -20,6 +20,7 @@ glfwWindowHint(GLFW_SAMPLES, 4);
     glfwTerminate();
     return NULL;
   }
+
   glfwMakeContextCurrent(glfw_window);
   glfwSetFramebufferSizeCallback(glfw_window, framebuffer_size_callback);
   glfwSetCursorPosCallback(glfw_window, mouse_callback);

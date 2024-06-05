@@ -1,6 +1,7 @@
 #ifndef ASSET_H
 #define ASSET_H
 
+
 #include "mesh.h"
 #include "texture.h"
 
@@ -15,5 +16,6 @@ Mesh *asset_load_mesh(const char *file_path);
 
 Texture asset_load_texture(const TextureCreateInfo *info,
                            const char *file_path);
-Texture asset_load_hdr(const char* file_path);
+Texture asset_load_hdr(const char *file_path);
+
 #endif /* ASSET_H */

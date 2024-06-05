@@ -193,6 +193,8 @@ Texture asset_load_hdr(const char *file_path) {
   int width, height, nr_channels;
   float *data = stbi_loadf(file_path, &width, &height, &nr_channels, 0);
   if (data) {
+    LOG("hdr width: %d", width);
+    LOG("hdr height: %d", height);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB,
                  GL_FLOAT, data);
   } else {

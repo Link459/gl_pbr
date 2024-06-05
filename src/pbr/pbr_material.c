@@ -14,12 +14,12 @@ void pbr_material_bind(const PbrPipeline *pipeline,
   texture_bind(&material->ao);
 }
 
-void pbr_material_destroy(const PbrMaterial *material){ 
-    texture_destroy(&material->albedo);
-    texture_destroy(&material->normal);
-    texture_destroy(&material->metallic);
-    texture_destroy(&material->roughness);
-    texture_destroy(&material->ao);
+void pbr_material_destroy(const PbrMaterial *material) {
+  texture_destroy(&material->albedo);
+  texture_destroy(&material->normal);
+  texture_destroy(&material->metallic);
+  texture_destroy(&material->roughness);
+  texture_destroy(&material->ao);
 }
 
 Texture pbr_material_texture(vec3 value) {
