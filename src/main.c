@@ -4,6 +4,7 @@
 
 #include "asset.h"
 #include "camera.h"
+#include "ibl.h"
 #include "log.h"
 #include "mesh.h"
 #include "pbr/pbr_material.h"
@@ -13,97 +14,7 @@
 #include "window.h"
 
 void process_input(GLFWwindow *window);
-void renderCube();
-
-Texture ibl() {
-  LOG("generating env map");
-  Shader frag = shader_from_file("shaders/ibl/frag.glsl", FRAGMENT_SHADER);
-  Shader vert = shader_from_file("shaders/ibl/vert.glsl", VERTEX_SHADER);
-  Shader shaders[2] = {frag, vert};
-  PipelineCreateInfo create_info = {
-      .shaders = shaders,
-      .length = 2,
-  };
-  Pipeline equirectangularToCubemapShader = pipeline_create(&create_info);
-
-  unsigned int captureFBO, captureRBO;
-  glGenFramebuffers(1, &captureFBO);
-  glGenRenderbuffers(1, &captureRBO);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                            GL_RENDERBUFFER, captureRBO);
-
-  int res = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (res != GL_FRAMEBUFFER_COMPLETE) {
-    LOG_ERR("frame buffer is not complete: %d", res);
-  }
-
-  Texture hdr_texture = asset_load_hdr("assets/new_port_loft.hdr");
-  unsigned int env_cubemap;
-  glGenTextures(1, &env_cubemap);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, env_cubemap);
-  for (unsigned int i = 0; i < 6; ++i) {
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0,
-                 GL_RGB, GL_FLOAT, NULL);
-  }
-
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  mat4 captureProjection;
-  glm_perspective(glm_rad(90.0f), 1.0f, 0.1f, 10.0f, captureProjection);
-
-  mat4 capture_views[6];
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){1.0f, 0.0f, 0.0f},
-             (vec3){0.0f, -1.0f, 0.0f}, capture_views[0]);
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){-1.0f, 0.0f, 0.0f},
-             (vec3){0.0f, -1.0f, 0.0f}, capture_views[1]);
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, 1.0f, 0.0f},
-             (vec3){0.0f, 0.0f, 1.0f}, capture_views[2]);
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, -1.0f, 0.0f},
-             (vec3){0.0f, 0.0f, -1.0f}, capture_views[3]);
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, 0.0f, 1.0f},
-             (vec3){0.0f, -1.0f, 0.0f}, capture_views[4]);
-  glm_lookat((vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, 0.0f, -1.0f},
-             (vec3){0.0f, -1.0f, 0.0f}, capture_views[5]);
-
-  // convert HDR equirectangular environment map to cubemap equivalent
-  pipeline_bind(&equirectangularToCubemapShader);
-  pipeline_set_int(&equirectangularToCubemapShader, "equirectangular_map", 0);
-  pipeline_set_mat4(&equirectangularToCubemapShader, "projection",
-                    &captureProjection);
-  glActiveTexture(GL_TEXTURE0);
-  texture_bind(&hdr_texture);
-
-  glViewport(0, 0, 512,
-             512); // don't forget to configure the viewport to the
-                   // capture dimensions.
-  glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-  for (unsigned int i = 0; i < 6; ++i) {
-
-    // pipeline_bind(&equirectangularToCubemapShader);
-    pipeline_set_mat4(&equirectangularToCubemapShader, "view",
-                      &capture_views[i]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, env_cubemap, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    renderCube();
-  }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  Texture texture = {
-      .type = GL_TEXTURE_CUBE_MAP,
-      .texture_id = env_cubemap,
-  };
-  return texture;
-}
+void render_cube();
 
 int main() {
   LOG("creating window");
@@ -115,6 +26,7 @@ int main() {
 
   glEnable(GL_DEPTH_TEST);
   // glEnable(GL_MULTISAMPLE);
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
   int width, height;
   glfwGetWindowSize(window->window, &width, &height);
@@ -144,6 +56,8 @@ int main() {
   LOG("Loading Resources");
   PbrPipeline pipeline = pbr_pipeline_create();
 
+  pipeline_set_int(&pipeline.pipeline, "irradiance_map", 5);
+
   PbrMaterial material = {};
   TextureCreateInfo info = texture_info_default();
 
@@ -164,10 +78,17 @@ int main() {
       &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
   LOG_NL;
 
+  material.ao = pbr_material_texture((vec3){0.3, 0.3, 0.3});
+
   vec3 light_position = {0.0f, 0.0f, 10.0f};
   vec3 light_color = {150.0f, 150.0f, 150.0f};
 
-  Texture env_texture = ibl();
+  Texture env_texture = {};
+  Texture prefilter_texture = {};
+  Texture brdf_texture = {};
+  Texture irradiance_map =
+      ibl_generate_irradiance("assets/new_port_loft.hdr", 512, &env_texture,
+                              &prefilter_texture, &brdf_texture);
 
   glViewport(0, 0, width, height);
   Shader frag = shader_from_file("shaders/skybox/frag.glsl", FRAGMENT_SHADER);
@@ -187,6 +108,9 @@ int main() {
   Mesh *mesh = asset_load_mesh("assets/Cerberus/cerberus.obj");
   vertex_attributes();
 
+  float axis[3] = {0.0, 1.0, 0.0};
+  glm_rotate(mesh->transform, glm_rad(70), axis);
+
   LOG("rendering begins");
   while (!glfwWindowShouldClose(window->window)) {
     process_input(window->window);
@@ -202,21 +126,23 @@ int main() {
     pipeline_set_vec3(&pipeline.pipeline, "light_color", &light_color);
 
     pbr_material_bind(&pipeline, &material);
+    glActiveTexture(GL_TEXTURE5);
+    texture_bind(&irradiance_map);
+    glActiveTexture(GL_TEXTURE6);
+    texture_bind(&prefilter_texture);
+    glActiveTexture(GL_TEXTURE7);
+    texture_bind(&brdf_texture);
 
     vertex_array_bind(&vao);
     mesh_draw(mesh, &pipeline.pipeline);
-
-    float axis[3] = {0.0, 1.0, 0.0};
-    glm_rotate(mesh->transform, 0.001, axis);
 
     glDepthFunc(GL_LEQUAL);
     pipeline_bind(&skybox);
     camera_bind(camera, &skybox);
     glActiveTexture(GL_TEXTURE0);
     texture_bind(&env_texture);
-    renderCube();
+    render_cube();
     glDepthFunc(GL_LESS);
-    (void)env_texture;
 
     glfwSwapBuffers(window->window);
     glfwPollEvents();
@@ -234,78 +160,4 @@ int main() {
 void process_input(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, 1);
-}
-
-unsigned int cubeVAO = 0;
-unsigned int cubeVBO = 0;
-void renderCube() {
-  // initialize (if necessary)
-  if (cubeVAO == 0) {
-    float vertices[] = {
-        // back face
-        -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-        1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,   // top-right
-        1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,  // bottom-right
-        1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,   // top-right
-        -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-        -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,  // top-left
-        // front face
-        -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-        1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // bottom-right
-        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // top-right
-        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // top-right
-        -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-        -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-        // left face
-        -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-right
-        -1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top-left
-        -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-        -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-        -1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
-        -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-right
-                                                            // right face
-        1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // top-left
-        1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,   // bottom-right
-        1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,    // top-right
-        1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,   // bottom-right
-        1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // top-left
-        1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,    // bottom-left
-        // bottom face
-        -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-        1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,  // top-left
-        1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // bottom-left
-        1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // bottom-left
-        -1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
-        -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-        // top face
-        -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-        1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // bottom-right
-        1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  // top-right
-        1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // bottom-right
-        -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-        -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f   // bottom-left
-    };
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &cubeVBO);
-    // fill buffer
-    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // link vertex attributes
-    glBindVertexArray(cubeVAO);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)(6 * sizeof(float)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-  }
-  // render Cube
-  glBindVertexArray(cubeVAO);
-  glDrawArrays(GL_TRIANGLES, 0, 36);
-  glBindVertexArray(0);
 }

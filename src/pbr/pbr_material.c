@@ -2,7 +2,7 @@
 
 void pbr_material_bind(const PbrPipeline *pipeline,
                        const PbrMaterial *material) {
-  glActiveTexture(GL_TEXTURE0);
+ glActiveTexture(GL_TEXTURE0);
   texture_bind(&material->albedo);
   glActiveTexture(GL_TEXTURE1);
   texture_bind(&material->normal);

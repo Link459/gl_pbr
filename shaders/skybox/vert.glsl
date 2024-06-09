@@ -11,7 +11,6 @@ out vec3 local_pos;
 void main()
 {
     local_pos = aPos;
-
     mat4 rotView = mat4(mat3(view)); // remove translation from the view matrix
     vec4 clipPos = projection * rotView * vec4(local_pos, 1.0);
 
