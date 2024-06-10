@@ -22,9 +22,10 @@ PbrPipeline pbr_pipeline_create() {
   pipeline_set_int(&pipeline.pipeline, "metallic_map", 2);
   pipeline_set_int(&pipeline.pipeline, "roughness_map", 3);
   pipeline_set_int(&pipeline.pipeline, "ao_map", 4);
-  pipeline_set_int(&pipeline.pipeline, "irradiance_map", 5);
-  pipeline_set_int(&pipeline.pipeline, "prefilter_map", 6);
-  pipeline_set_int(&pipeline.pipeline, "brdf_lut", 7);
+  pipeline_set_int(&pipeline.pipeline, "emissive_map", 5);
+  pipeline_set_int(&pipeline.pipeline, "irradiance_map", 6);
+  pipeline_set_int(&pipeline.pipeline, "prefilter_map", 7);
+  pipeline_set_int(&pipeline.pipeline, "brdf_lut", 8);
   return pipeline;
 }
 

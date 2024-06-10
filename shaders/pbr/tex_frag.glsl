@@ -5,6 +5,16 @@ out vec4 FragColor;
 in vec2 tex_coords;
 in vec3 world_pos;
 in vec3 normal;
+
+struct Material {
+	vec4 albedo_factor;
+	vec4 emissive_factor;
+	vec4 diffuse_factor;
+	vec4 specular_factor;
+	float metallic_factor;	
+	float roughness_factor;	
+	float emissive_strength;
+};
   
 uniform vec3 camera_pos;
 
@@ -13,15 +23,35 @@ uniform sampler2D normal_map;
 uniform sampler2D metallic_map;
 uniform sampler2D roughness_map;
 uniform sampler2D ao_map;  
+uniform sampler2D emissive_map;
+
 uniform samplerCube irradiance_map;
 uniform samplerCube prefilter_map;
 uniform sampler2D brdf_lut;
 
-uniform vec3 light_position;
+uniform Material material;
 
+uniform vec3 light_position;
 uniform vec3 light_color;
 
 const float PI = 3.14159265359;
+
+
+vec4 SRGBtoLINEAR(vec4 srgbIn)
+{
+	#define MANUAL_SRGB 1
+	#ifdef MANUAL_SRGB
+	#ifdef SRGB_FAST_APPROXIMATION
+	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+	#else //SRGB_FAST_APPROXIMATION
+	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+	#endif //SRGB_FAST_APPROXIMATION
+	return vec4(linOut,srgbIn.w);;
+	#else //MANUAL_SRGB
+	return srgbIn;
+	#endif //MANUAL_SRGB
+}
 
 vec3 getNormalFromNormalMap()
 {
@@ -87,9 +117,10 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float r)
 
 void main()
 {		
-    vec3 albedo     = pow(texture(albedo_map, tex_coords).rgb, vec3(2.2));
-    float metallic  = texture(metallic_map, tex_coords).r;
-    float roughness = texture(roughness_map, tex_coords).r;
+    //vec3 albedo     = pow(texture(albedo_map, tex_coords).rgb, vec3(2.2));
+    vec3 albedo     = texture(albedo_map, tex_coords).rgb;
+    float metallic  = texture(metallic_map, tex_coords).b;
+    float roughness = texture(roughness_map, tex_coords).g;
     float ao        = texture(ao_map, tex_coords).r;
 
     vec3 N = getNormalFromNormalMap();
@@ -139,15 +170,6 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     } 
 
-    /*vec3 kS = fresnelSchlick(max(dot(N,V),0.0), F0);
-      //vec3 kD = 1.0 - kS;
-      //vec3 irradiance = texture(irradiance_map,N).rgb;
-      //vec3 diffuse = irradiance * albedo;
-     // vec3 ambient = (kD * diffuse) * ao;
-    //ambient = vec3(0.03) * albedo * ao;
-
-    //vec3 color = ambient + Lo;*/
-
     vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
     vec3 kS = F;
@@ -165,12 +187,19 @@ void main()
 
     vec3 ambient = (kD * diffuse + specular) * ao;
 
-    vec3 color = ambient + Lo;
+	vec3 emissiveness = material.emissive_factor.rgb * material.emissive_strength;
+    FragColor = vec4(emissiveness,1.0);
+	vec3 emissive = emissiveness * SRGBtoLINEAR(texture(emissive_map, tex_coords)).rgb;
+    vec3 color = emissive + ambient + Lo;
+
+	/*vec3 emissive = material.emissive_factor.rgb * material.emissive_strength;
+	emissive *= SRGBtoLINEAR(texture(emissive_map, tex_coords)).rgb;
+
+    color += emissive;*/
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
-
 
     FragColor = vec4(color, 1.0);
 }

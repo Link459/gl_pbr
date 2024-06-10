@@ -2,11 +2,11 @@
 
 #include <unistd.h>
 
-#include "asset.h"
 #include "camera.h"
 #include "ibl.h"
 #include "log.h"
 #include "mesh.h"
+#include "models.h"
 #include "pbr/pbr_material.h"
 #include "pbr/pbr_pipeline.h"
 #include "pipeline/pipeline.h"
@@ -58,28 +58,6 @@ int main() {
 
   pipeline_set_int(&pipeline.pipeline, "irradiance_map", 5);
 
-  PbrMaterial material = {};
-  TextureCreateInfo info = texture_info_default();
-
-  LOG("Materials:");
-  LOG_RAW("1/4");
-  material.albedo = asset_load_texture(
-      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
-
-  LOG_RAW("\r2/4");
-  material.normal = asset_load_texture(
-      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
-
-  LOG_RAW("\r3/4");
-  material.metallic = asset_load_texture(
-      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
-  LOG_RAW("\r4/4");
-  material.roughness = asset_load_texture(
-      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
-  LOG_NL;
-
-  material.ao = pbr_material_texture((vec3){0.3, 0.3, 0.3});
-
   vec3 light_position = {0.0f, 0.0f, 10.0f};
   vec3 light_color = {150.0f, 150.0f, 150.0f};
 
@@ -104,8 +82,8 @@ int main() {
 
   VertexArray vao = vertex_array_create();
 
-  LOG("loading model");
-  Mesh *mesh = asset_load_mesh("assets/Cerberus/cerberus.obj");
+  PbrMaterial material = {};
+  Mesh *mesh = model_damaged_helmet(&material);
   vertex_attributes();
 
   float axis[3] = {0.0, 1.0, 0.0};
@@ -126,11 +104,11 @@ int main() {
     pipeline_set_vec3(&pipeline.pipeline, "light_color", &light_color);
 
     pbr_material_bind(&pipeline, &material);
-    glActiveTexture(GL_TEXTURE5);
-    texture_bind(&irradiance_map);
     glActiveTexture(GL_TEXTURE6);
-    texture_bind(&prefilter_texture);
+    texture_bind(&irradiance_map);
     glActiveTexture(GL_TEXTURE7);
+    texture_bind(&prefilter_texture);
+    glActiveTexture(GL_TEXTURE8);
     texture_bind(&brdf_texture);
 
     vertex_array_bind(&vao);

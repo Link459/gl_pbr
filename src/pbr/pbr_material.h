@@ -6,12 +6,22 @@
 #include "pbr_pipeline.h"
 
 typedef struct {
-  Texture albedo;
-  Texture normal;
-  Texture metallic;
-  Texture roughness;
-  Texture ao;
-  // TODO: maybe implement a reflectiveness value for the fresnel-schlick approximation
+  vec4 albedo_factor;
+  vec4 emissive_factor;
+  vec4 diffuse_factor;
+  vec4 specular_factor;
+  float metallic_factor;
+  float roughness_factor;
+  float emissive_strength;
+
+  Texture albedo_texture;
+  Texture normal_texture;
+  Texture metallic_texture;
+  Texture roughness_texture;
+  Texture ao_texture;
+  Texture emissive_texture;
+  // TODO: maybe implement a reflectiveness value for the fresnel-schlick
+  // approximation
 } PbrMaterial;
 
 void pbr_material_bind(const PbrPipeline *pipeline,

@@ -6,6 +6,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define CGLTF_IMPLEMENTATION
+#include <cgltf.h>
+
 FileResult asset_load_file(const char *file_path, const char *access) {
   FILE *file = fopen(file_path, access);
   FileResult res = {};
@@ -84,7 +87,7 @@ static void calc_normal(vec3 N, vec3 v0, vec3 v1, vec3 v2) {
   }
 }
 
-Mesh *asset_load_mesh(const char *file_path) {
+Mesh *asset_load_mesh(const char *file_path, bool subtract_tex_coords) {
   tinyobj_attrib_t attrib;
   tinyobj_shape_t *shapes = NULL;
   size_t num_shapes;
@@ -127,7 +130,12 @@ Mesh *asset_load_mesh(const char *file_path) {
     // Texture Coordinate
     if (idx.vt_idx >= 0) {
       vertex->tex_coord[0] = attrib.texcoords[2 * idx.vt_idx + 0];
-      vertex->tex_coord[1] = 1 - attrib.texcoords[2 * idx.vt_idx + 1];
+      if (subtract_tex_coords) {
+        vertex->tex_coord[1] = 1 - attrib.texcoords[2 * idx.vt_idx + 1];
+      } else {
+        vertex->tex_coord[1] = attrib.texcoords[2 * idx.vt_idx + 1];
+      }
+
     } else {
       LOG_ERR("no texcoord");
       vertex->tex_coord[0] = 0.0f;
@@ -144,6 +152,18 @@ Mesh *asset_load_mesh(const char *file_path) {
   tinyobj_shapes_free(shapes, num_shapes);
 
   return mesh;
+}
+
+Mesh *asset_load_mesh_gltf(const char *file_path, PbrMaterial *material) {
+
+  cgltf_options options = {0};
+  cgltf_data *data = NULL;
+  cgltf_result result = cgltf_parse_file(&options, "scene.gltf", &data);
+  if (result == cgltf_result_success) {
+    cgltf_free(data);
+  }
+
+  return NULL;
 }
 
 Texture asset_load_texture(const TextureCreateInfo *info,

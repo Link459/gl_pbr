@@ -1,4 +1,6 @@
 #include "models.h"
+#include "asset.h"
+#include "stb_image.h"
 
 Mesh *model_flat_plane() {
   Vertex vertices[] = {
@@ -701,29 +703,77 @@ void render_cube() {
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
-void render_quad()
-{
-    if (quadVAO == 0)
-    {
-        float quadVertices[] = {
-            // positions        // texture Coords
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
+void render_quad() {
+  if (quadVAO == 0) {
+    float quadVertices[] = {
+        // positions        // texture Coords
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+    // setup plane VAO
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
     glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices,
+                 GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+  }
+  glBindVertexArray(quadVAO);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray(0);
+}
+
+Mesh *model_cerberus(PbrMaterial *material) {
+  TextureCreateInfo info = texture_info_default();
+  material->albedo_texture = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
+
+  material->normal_texture = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
+
+  material->metallic_texture = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
+  material->roughness_texture = asset_load_texture(
+      &info, "assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
+
+  material->ao_texture = pbr_material_texture((vec3){0.3, 0.3, 0.3});
+
+  Mesh *mesh = asset_load_mesh("assets/Cerberus/cerberus.obj", true);
+  return mesh;
+}
+
+Mesh *model_damaged_helmet(PbrMaterial *material) {
+  {
+    glm_vec4_copy((vec4){1.0, 1.0, 1.0, 1.0}, material->emissive_factor);
+    material->emissive_strength = 1;
+
+    stbi_set_flip_vertically_on_load(false);
+    TextureCreateInfo info = texture_info_default();
+    material->albedo_texture =
+        asset_load_texture(&info, "assets/DamagedHelmet/Default_albedo.jpg");
+
+    material->normal_texture =
+        asset_load_texture(&info, "assets/DamagedHelmet/Default_normal.jpg");
+
+    material->metallic_texture = asset_load_texture(
+        &info, "assets/DamagedHelmet/Default_metalRoughness.jpg");
+    material->roughness_texture = asset_load_texture(
+        &info, "assets/DamagedHelmet/Default_metalRoughness.jpg");
+
+    material->ao_texture =
+        asset_load_texture(&info, "assets/DamagedHelmet/Default_AO.jpg");
+
+    material->emissive_texture =
+        asset_load_texture(&info, "assets/DamagedHelmet/Default_emissive.jpg");
+
+    Mesh *mesh =
+        asset_load_mesh("assets/DamagedHelmet/DamagedHelmet.obj", false);
+    return mesh;
+  }
 }
