@@ -751,7 +751,10 @@ Mesh *model_cerberus(PbrMaterial *material) {
 Mesh *model_damaged_helmet(PbrMaterial *material) {
   {
     glm_vec4_copy((vec4){1.0, 1.0, 1.0, 1.0}, material->emissive_factor);
-    material->emissive_strength = 1;
+    material->emissive_strength = 1.0;
+    material->metallic_factor = 1.0;
+
+    glm_vec4_copy((vec4){0.0, 0.0, 0.0, 1.0}, material->albedo_factor);
 
     stbi_set_flip_vertically_on_load(false);
     TextureCreateInfo info = texture_info_default();
@@ -766,6 +769,7 @@ Mesh *model_damaged_helmet(PbrMaterial *material) {
     material->roughness_texture = asset_load_texture(
         &info, "assets/DamagedHelmet/Default_metalRoughness.jpg");
 
+    material->metallic_texture = pbr_material_texture((vec3){0.0, 1.0, 0.3});
     material->ao_texture =
         asset_load_texture(&info, "assets/DamagedHelmet/Default_AO.jpg");
 

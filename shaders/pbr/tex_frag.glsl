@@ -7,15 +7,15 @@ in vec3 world_pos;
 in vec3 normal;
 
 struct Material {
-	vec4 albedo_factor;
-	vec4 emissive_factor;
-	vec4 diffuse_factor;
-	vec4 specular_factor;
-	float metallic_factor;	
-	float roughness_factor;	
-	float emissive_strength;
+    vec4 albedo_factor;
+    vec4 emissive_factor;
+    vec4 diffuse_factor;
+    vec4 specular_factor;
+    float metallic_factor;	
+    float roughness_factor;	
+    float emissive_strength;
 };
-  
+
 uniform vec3 camera_pos;
 
 uniform sampler2D albedo_map;
@@ -36,21 +36,24 @@ uniform vec3 light_color;
 
 const float PI = 3.14159265359;
 
+vec3 getReflection(vec3 I, vec3 N) {
+    return I - 2.0 * dot(N, I) * N;
+}
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
-	#define MANUAL_SRGB 1
-	#ifdef MANUAL_SRGB
-	#ifdef SRGB_FAST_APPROXIMATION
-	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
-	#else //SRGB_FAST_APPROXIMATION
-	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
-	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
-	#endif //SRGB_FAST_APPROXIMATION
-	return vec4(linOut,srgbIn.w);;
-	#else //MANUAL_SRGB
-	return srgbIn;
-	#endif //MANUAL_SRGB
+#define MANUAL_SRGB 1
+#ifdef MANUAL_SRGB
+#ifdef SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+#else //SRGB_FAST_APPROXIMATION
+    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+#endif //SRGB_FAST_APPROXIMATION
+    return vec4(linOut,srgbIn.w);
+#else //MANUAL_SRGB
+    return srgbIn;
+#endif //MANUAL_SRGB
 }
 
 vec3 getNormalFromNormalMap()
@@ -117,15 +120,15 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float r)
 
 void main()
 {		
-    //vec3 albedo     = pow(texture(albedo_map, tex_coords).rgb, vec3(2.2));
-    vec3 albedo     = texture(albedo_map, tex_coords).rgb;
-    float metallic  = texture(metallic_map, tex_coords).b;
+    vec3 albedo     = pow(texture(albedo_map, tex_coords).rgb, vec3(2.2));
+    //vec3 albedo     = texture(albedo_map, tex_coords).rgb;
+    float metallic  = texture(metallic_map, tex_coords).b * material.metallic_factor;
     float roughness = texture(roughness_map, tex_coords).g;
     float ao        = texture(ao_map, tex_coords).r;
 
     vec3 N = getNormalFromNormalMap();
     vec3 V = normalize(camera_pos - world_pos);
-    vec3 R = reflect(-V, N); 
+    vec3 R = getReflection(-V, N); 
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -185,17 +188,12 @@ void main()
     vec2 brdf  = texture(brdf_lut, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = (kD * (diffuse + specular)) * ao;
 
-	vec3 emissiveness = material.emissive_factor.rgb * material.emissive_strength;
-    FragColor = vec4(emissiveness,1.0);
-	vec3 emissive = emissiveness * SRGBtoLINEAR(texture(emissive_map, tex_coords)).rgb;
+    vec3 emissiveness = material.emissive_factor.rgb * material.emissive_strength;
+    vec3 emissive = emissiveness * SRGBtoLINEAR(texture(emissive_map, tex_coords)).rgb;
     vec3 color = emissive + ambient + Lo;
 
-	/*vec3 emissive = material.emissive_factor.rgb * material.emissive_strength;
-	emissive *= SRGBtoLINEAR(texture(emissive_map, tex_coords)).rgb;
-
-    color += emissive;*/
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct

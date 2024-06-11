@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 
+#include "asset.h"
 #include "camera.h"
 #include "ibl.h"
 #include "log.h"
@@ -64,9 +65,9 @@ int main() {
   Texture env_texture = {};
   Texture prefilter_texture = {};
   Texture brdf_texture = {};
-  Texture irradiance_map =
-      ibl_generate_irradiance("assets/new_port_loft.hdr", 512, &env_texture,
-                              &prefilter_texture, &brdf_texture);
+  Texture irradiance_map = ibl_generate_irradiance(
+      "assets/new_port_loft.hdr", 512, // "assets/simons_town_road_4k.hdr"
+      &env_texture, &prefilter_texture, &brdf_texture);
 
   glViewport(0, 0, width, height);
   Shader frag = shader_from_file("shaders/skybox/frag.glsl", FRAGMENT_SHADER);
